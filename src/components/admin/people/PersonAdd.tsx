@@ -1,5 +1,5 @@
 import { ErrorItem, getErrorFromZod } from "@/utils/getErrorFromZod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InputField } from "../InputField";
 import { escapeCPF } from "@/utils/escapeCPF";
 import { Button } from "../Button";
@@ -18,15 +18,19 @@ export const PersonAdd = ({ eventId, groupId, refreshAction }: Props) => {
     const [errors, setErrors] = useState<ErrorItem[]>([]);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        setErrors([]);
+        const data = personSchema.safeParse({ nameField, cpfField });
+        if (!data.success) return setErrors(getErrorFromZod(data.error));
+    }, [nameField, cpfField]);
+
     const personSchema = z.object({
         nameField: z.string().min(1, "Preencha o nome"),
         cpfField: z.string().length(11, "CPF inválido"),
     });
 
     const handleSaveButton = async () => {
-        setErrors([]);
-        const data = personSchema.safeParse({ nameField, cpfField });
-        if (!data.success) return setErrors(getErrorFromZod(data.error));
+        if (errors.length > 0) return;
 
         setLoading(true);
         const newPerson = await api.addPerson(eventId, groupId, {
