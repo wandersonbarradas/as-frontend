@@ -10,7 +10,11 @@ type Prop = {
 };
 export const GroupItem = ({ item, refreshAction, onEdit }: Prop) => {
     const handleDeleteButton = async () => {
-        if (confirm("Deseja realmente excluir este grupo?")) {
+        if (
+            confirm(
+                "Tem certeza de que deseja excluir este grupo? Esta ação também excluirá todas as pessoas associadas a este grupo.",
+            )
+        ) {
             await api.deleteGroup(item.id_event, item.id);
             refreshAction();
         }
